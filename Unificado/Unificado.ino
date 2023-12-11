@@ -3,7 +3,7 @@
 #include <Adafruit_MPU6050.h>
 #include <Adafruit_Sensor.h>
 #include <Wire.h>
-#include <TinyGPS.h>
+#include <TinyGPS++.h>
 #include <QMC5883LCompass.h>
 #include <ESP32Servo.h>
 #include <Adafruit_BMP085.h>
@@ -58,17 +58,17 @@ const byte qmc5883l_osr_64    = 0xC0;
 QMC5883LCompass compass;
 HardwareSerial neogps(1);
 
-TinyGPS gps;  // the TinyGPS++ object
+TinyGPSPlus gps;  // the TinyGPS++ object
 Servo ServoGlobo;  // create servo object to control a servo
  
 
-void WriteFile(const char * path, float latitude, float longitude, float angulo, float velocidad, float x_value, float y_value, float z_value, float azimuth,float a_x,float a_y,float a_z,float g_x,float g_y,float g_z,float presion, float altitud,float temperatura, float carga, float dt, float tiempo){
+void WriteFile(const char * path, float latitude, float longitude, float angulo, float velocidad, float altitudGPS, String fecha_y_hora, float x_value, float y_value, float z_value, float azimuth,float a_x,float a_y,float a_z,float g_x,float g_y,float g_z,float presion, float altitud,float temperatura, float carga, float dt, float tiempo){
   // Si el archivo es nuevo
   if (!SD.exists(path)) {
     myFile = SD.open(path, FILE_WRITE);
   // escribir titulos de las columnas si se esta creando un archivo nuevo:
     if (myFile) {
-      myFile.println("Latitud, Longitud, Angulo, Velocidad, X, Y, Z, Azimuth, AccelX, AccelY, AccelZ, GyroX, GyroY, GyroZ, Presion, Altura, Temperatura, Carga, Dt, Tiempo"); // write number to file
+      myFile.println("Latitud, Longitud, Angulo, Velocidad, altitudGPS, fecha_y_hora, X, Y, Z, Azimuth, AccelX, AccelY, AccelZ, GyroX, GyroY, GyroZ, Presion, Altura, Temperatura, Carga, Dt, Tiempo"); // write number to file
       myFile.print("\n");
       myFile.close();
     }
@@ -81,13 +81,17 @@ void WriteFile(const char * path, float latitude, float longitude, float angulo,
    myFile = SD.open(path, FILE_APPEND);
 
     if (myFile){
-      myFile.println(String(latitude));
+    myFile.print(String(latitude));
     myFile.print(",");
     myFile.print(String(longitude));
     myFile.print(",");
     myFile.print(String(angulo));
     myFile.print(",");
     myFile.print(String(velocidad));
+    myFile.print(",");
+    myFile.print(String(altitudGPS));
+    myFile.print(",");
+    myFile.print(String(fecha_y_hora));
     myFile.print(",");
     myFile.print(String(x_value));
     myFile.print(",");
@@ -123,6 +127,53 @@ void WriteFile(const char * path, float latitude, float longitude, float angulo,
     myFile.print("\n");
     //","+ String(accel_ang_x)+ ","+String(accel_ang_y)+","+String(temperatura) ); // write number to file
    
+
+    Serial.print(String(latitude));
+    Serial.print(",");
+    Serial.print(String(longitude));
+    Serial.print(",");
+    Serial.print(String(angulo));
+    Serial.print(",");
+    Serial.print(String(velocidad));
+    Serial.print(",");
+    Serial.print(String(altitudGPS));
+    Serial.print(",");
+    Serial.print(String(fecha_y_hora));
+    Serial.print(",");
+    Serial.print(String(x_value));
+    Serial.print(",");
+    Serial.print(String(y_value));
+    Serial.print(",");
+    Serial.print(String(z_value));
+    Serial.print(",");
+    Serial.print(String(azimuth));
+    Serial.print(",");
+    Serial.print(String(a_x));
+    Serial.print(",");
+    Serial.print(String(a_y));
+    Serial.print(",");
+    Serial.print(String(a_z));
+    Serial.print(",");
+    Serial.print(String(g_x));
+    Serial.print(",");
+    Serial.print(String(g_y));
+    Serial.print(",");
+    Serial.print(String(g_z));
+    Serial.print(",");
+    Serial.print(String(presion));
+    Serial.print(",");
+    Serial.print(String(altitud));
+    Serial.print(",");
+    Serial.print(String(temperatura));
+    Serial.print(",");
+    Serial.print(String(floor(carga*10)/10-1));
+    Serial.print(",");
+    Serial.print(String(dt));
+    Serial.print(",");
+    Serial.print(String(tiempo));
+    Serial.print("\n");
+
+
     Serial.println("Linea");
     myFile.close();
       }
@@ -130,7 +181,7 @@ void WriteFile(const char * path, float latitude, float longitude, float angulo,
     Serial.println("error opening file ");
     Serial.println(path);
   }
-     }
+}
 
 void setupSensores(){
   
@@ -296,27 +347,71 @@ void loop() {
 //          direction);
 //  Serial.println(buffer);
   float latitude, longitude, rumbo, velocidad;
+  float altitudGPS;
+  String fecha_y_hora;
   while(neogps.available()) 
   {
     int c = neogps.read();
  
     if(gps.encode(c))  
     {
-      gps.f_get_position(&latitude, &longitude);
-      rumbo = gps.f_course();
-      velocidad = gps.f_speed_kmph();
+      float latitud = (gps.location.lat(), 6);
+      float longitud = (gps.location.lng(), 6);
+      float rumbo = gps.course.deg();
+      float velocidad = gps.speed.kmph();
+      float altitudGPS = gps.altitude.meters();
+      int year, month, day, hour, minute, second;
+      
+      /*Serial.print("Raw date DDMMYY = ");
+      Serial.println(gps.date.value()); 
+      */
+      // Year (2000+) (u16)
+      //Serial.print("Year = "); 
+      float anio = gps.date.year(); 
+      // Month (1-12) (u8)
+      //Serial.print("Month = "); 
+      float mes = gps.date.month(); 
+      // Day (1-31) (u8)
+      //Serial.print("Day = "); 
+      float dia = gps.date.day(); 
+
+      // Raw time in HHMMSSCC format (u32)
+      /*Serial.print("Raw time in HHMMSSCC = "); 
+      Serial.println(gps.time.value()); 
+*/
+      // Hour (0-23) (u8)
+      //Serial.print("Hour = "); 
+      //Serial.println(gps.time.hour()-5); 
+      float hora = gps.time.hour()-5;
+      // Minute (0-59) (u8)
+      //Serial.print("Minute = "); 
+      //Serial.println(gps.time.minute()); 
+      float minuto = gps.time.minute();
+      // Second (0-59) (u8)
+      //Serial.print("Second = "); 
+      //Serial.println(gps.time.second()); 
+      float segundo = gps.time.second();
+
+      String str_anio = String(anio, 0); // 0 indica que no queremos decimales
+      String str_mes = String(mes, 0);
+      String str_dia = String(dia, 0);
+      String str_hora = String(hora, 0);
+      String str_minuto = String(minuto, 0);
+      String str_segundo = String(segundo, 0);
+
+      // Formar la cadena final concatenando los valores con "/"
+      String fecha_y_hora = str_dia + "/" + str_mes + "/" + str_anio + "//" + str_hora + "/" + str_minuto + "/" + str_segundo;
+    }
 //      Serial.print("Latitud/Longitud: "); 
 //      Serial.print(latitude,5); 
 //      Serial.print(", "); 
-      Serial.println(longitude,5);
-      Serial.print("Altitud (metros): ");
+     
 ////      Serial.println(gps.f_altitude()); 
 //      Serial.print("Rumbo (grados): "); Serial.println(gps.f_course()); 
 //      Serial.print("Velocidad(kmph): ");
 //      Serial.println(gps.f_speed_kmph());
-      gps.stats(&chars, &sentences, &failed_checksum);  
     }
-  }
+  
   delay(500);
 
   //BMP 180
@@ -327,24 +422,24 @@ void loop() {
 //      
   // Para una medida mas precisa de la altitud se considero
   // la presion a nivel del mar actual que es de 1018
-  altura = bmp.readAltitude(101800);
+  float altitud = bmp.readAltitude(101800);
   presion = bmp.readPressure();
 //  Serial.print("Alttitud = ");
 //  Serial.print(altura);
 //  Serial.println(" m");
 //    
-  Serial.println();
+  //Serial.println();
   delay(500);
 
   //Servo
 
   
-  if (altura <= 12){
+  if (altitud <= 12){
     Serial.print("Altura ");
-    Serial.println(gps.f_altitude());
+    Serial.println(altitud);
   }  
     
-  if (altura == 12){
+  if (altitud == 12){
     digitalWrite (ledServo, HIGH);  // turn on the LED
     Serial.println("Motor activo");
     for (pos = 0; pos <= 180; pos += 1) {
@@ -357,12 +452,12 @@ void loop() {
   carga = analogRead(Bateria);
   carga = (carga/4095)*3.3; 
   carga = carga* (5 + 9.6)/5;  // R2 = 5K, R1 = 9.6K
-  Serial.println(carga);
+  //Serial.println(carga);
   
-  WriteFile("/test8.txt", latitude, longitude, rumbo, velocidad, x_value, y_value, z_value,azimuth, a_x, a_y, a_z, g_x, g_y, g_z, presion, altura, temperatura, carga, dt, t);
+  WriteFile("/test8.txt", latitude, longitude, rumbo, velocidad, altitudGPS, fecha_y_hora, x_value, y_value, z_value,azimuth, a_x, a_y, a_z, g_x, g_y, g_z, presion, altura, temperatura, carga, dt, t);
 //  ReadFile("/test1.txt");
 
-  if (gps.f_altitude() == 0){
+  if (altitud == 0){
     myFile.close(); // close the file
     
   }
