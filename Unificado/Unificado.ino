@@ -61,13 +61,13 @@ TinyGPS gps;  // the TinyGPS++ object
 Servo ServoGlobo;  // create servo object to control a servo
  
 
-void WriteFile(const char * path, float latitude, float longitude, float angulo, float velocidad, float x_value, float y_value, float z_value, float azimuth, float bearing, char * directio,float accel_ang_x,float accel_ang_y,float altitud,float temperatura, float carga, float dt, float tiempo){
+void WriteFile(const char * path, float latitude, float longitude, float angulo, float velocidad, float x_value, float y_value, float z_value, float azimuth,float a_x,float a_y,float a_z,float g_x,float g_y,float g_z,float altitud,float temperatura, float carga, float dt, float tiempo){
   // Si el archivo es nuevo
   if (!SD.exists(path)) {
     myFile = SD.open(path, FILE_WRITE);
   // escribir titulos de las columnas si se esta creando un archivo nuevo:
     if (myFile) {
-      myFile.println("Latitud, Longitud, Angulo, Velocidad, X, Y, Z, Azimuth, Bearing, Direction, AccelX, AccelY, Altura, Temperatura, Carga, Dt, Tiempo"); // write number to file
+      myFile.println("Latitud, Longitud, Angulo, Velocidad, X, Y, Z, Azimuth, AccelX, AccelY, AccelZ, GyroX, GyroY, GyroZ, Altura, Temperatura, Carga, Dt, Tiempo"); // write number to file
       myFile.close();
     }
     else {
@@ -95,19 +95,23 @@ void WriteFile(const char * path, float latitude, float longitude, float angulo,
     myFile.print(",");
     myFile.print(String(azimuth));
     myFile.print(",");
-    myFile.print(String(bearing));
+    myFile.print(String(a_x));
     myFile.print(",");
-    myFile.print(String(directio));
+    myFile.print(String(a_y));
     myFile.print(",");
-    myFile.print(String(accel_ang_x));
+    myFile.print(String(a_z));
     myFile.print(",");
-    myFile.print(String(accel_ang_y));
+    myFile.print(String(g_x));
+    myFile.print(",");
+    myFile.print(String(g_y));
+    myFile.print(",");
+    myFile.print(String(g_z));
     myFile.print(",");
     myFile.print(String(altitud));
     myFile.print(",");
     myFile.print(String(temperatura));
     myFile.print(",");
-    myFile.print(String(carga));
+    myFile.print(String(floor(carga*10)/10));
     myFile.print(",");
     myFile.print(String(dt));
     myFile.print(",");
@@ -244,14 +248,20 @@ void loop() {
   /* Get new sensor events with the readings */
   sensors_event_t a, g, temp;
   mpu.getEvent(&a, &g, &temp);
-  float accel_ang_x=atan(a.acceleration.x/sqrt(pow(a.acceleration.y,2) + pow(a.acceleration.z,2)))*(180.0/3.14);
-  float accel_ang_y=atan(a.acceleration.y/sqrt(pow(a.acceleration.x,2) + pow(a.acceleration.z,2)))*(180.0/3.14);
+  //float accel_ang_x=atan(a.acceleration.x/sqrt(pow(a.acceleration.y,2) + pow(a.acceleration.z,2)))*(180.0/3.14);
+  //float accel_ang_y=atan(a.acceleration.y/sqrt(pow(a.acceleration.x,2) + pow(a.acceleration.z,2)))*(180.0/3.14);
   //Mostrar los angulos separadas por un [tab]
-  Serial.print("Inclinacion en X: ");
-  Serial.print(accel_ang_x); 
-  Serial.print(", Inclinacion en Y:");
-  Serial.println(accel_ang_y);
-  
+  //Serial.print("Inclinacion en X: ");
+  //Serial.print(accel_ang_x); 
+  //Serial.print(", Inclinacion en Y:");
+  //Serial.println(accel_ang_y);
+  float a_x = a.acceleration.x;
+  float a_y = a.acceleration.y;
+  float a_z = a.acceleration.z;
+  float g_x = g.gyro.x;
+  float g_y = g.gyro.y;
+  float g_z = g.gyro.z;
+
   int x_value;
   int y_value;
   int z_value;
@@ -343,7 +353,7 @@ void loop() {
   carga = carga* (5 + 9.6)/5;  // R2 = 5K, R1 = 9.6K
   Serial.println(carga);
   
-  WriteFile("/test3.txt", latitude, longitude, rumbo, velocidad, x_value, y_value, z_value,azimuth,bearing,direction, accel_ang_x, accel_ang_y, altura, temperatura, carga, dt, t);
+  WriteFile("/test5.txt", latitude, longitude, rumbo, velocidad, x_value, y_value, z_value,azimuth, a_x, a_y, a_z, g_x, g_y, g_z, altura, temperatura, carga, dt, t);
 //  ReadFile("/test1.txt");
 
   if (gps.f_altitude() == 0){
