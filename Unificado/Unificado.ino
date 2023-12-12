@@ -37,6 +37,8 @@ unsigned long chars;
 unsigned short sentences, failed_checksum;
 long tiempo_prev, dt;
 long t = 0;
+bool finalizoMision = 0;
+bool empezo = 0;
 
 // Mode Control (MODE)
 const byte qmc5883l_mode_stby = 0x00;
@@ -62,13 +64,13 @@ TinyGPSPlus gps;  // the TinyGPS++ object
 Servo ServoGlobo;  // create servo object to control a servo
  
 
-void WriteFile(const char * path, String latitud, String longitud, String fecha_y_hora, float x_value, float y_value, float z_value, float azimuth,float a_x,float a_y,float a_z,float g_x,float g_y,float g_z,float presion, float altura, float temperatura, float carga, float dt, float tiempo){
+void WriteFile(const char * path, String latitud, String longitud, String fecha_y_hora, float x_value, float y_value, float z_value, float azimuth,float a_x,float a_y,float a_z,float g_x,float g_y,float g_z,float presion, float altura, float difAltura, float temperatura, float carga, float dt, float tiempo){
   // Si el archivo es nuevo
   if (!SD.exists(path)) {
     myFile = SD.open(path, FILE_WRITE);
   // escribir titulos de las columnas si se esta creando un archivo nuevo:
     if (myFile) {
-      myFile.println("Latitud (°), Longitud (°), fecha_y_hora, X (G), Y (G), Z (G), Angulo (°), AccelX (m/s^2), AccelY (m/s^2), AccelZ (m/s^2), GyroX (°/s), GyroY (°/s), GyroZ (°/s), Presion (Pa), Altura (m), Temperatura (°C), Carga (V), Dt (ms), Tiempo (ms)"); // write number to file      myFile.print("\n");
+      myFile.println("Latitud (°), Longitud (°), fecha_y_hora, X (G), Y (G), Z (G), Angulo (°), AccelX (m/s^2), AccelY (m/s^2), AccelZ (m/s^2), GyroX (°/s), GyroY (°/s), GyroZ (°/s), Presion (Pa), Altura (m), Diferencia de Altura (m), Temperatura (°C), Carga (V), Dt (ms), Tiempo (ms)"); // write number to file      myFile.print("\n");
       myFile.close();
     }
     else {
@@ -110,6 +112,8 @@ void WriteFile(const char * path, String latitud, String longitud, String fecha_
     myFile.print(",");
     myFile.print(String(altura));
     myFile.print(",");
+    myFile.print(String(difAltura));
+    myFile.print(",");
     myFile.print(String(temperatura));
     myFile.print(",");
     myFile.print(String(floor(carga*10)/10-1));
@@ -148,6 +152,8 @@ void WriteFile(const char * path, String latitud, String longitud, String fecha_
     Serial.print(String(presion));
     Serial.print(",");
     Serial.print(String(altura));
+    Serial.print(",");
+    Serial.print(String(difAltura));
     Serial.print(",");
     Serial.print(String(temperatura));
     Serial.print(",");
@@ -275,10 +281,11 @@ void setupSensores(){
       {
         latitud2 = gps.location.lat();
         Serial.println(latitud2);
+        delay(1000);
       }
       Serial.println("GPS disponible, calculando coordenadas...");
     }
-    delay(500);
+    delay(1000);
   }
   
   
@@ -303,10 +310,19 @@ void setup() {
   }
   Serial.println("SD initialization done.");
   setupSensores();
+  delay(1000);
 }
 
+float alturaInicial;
+
 void loop() {
-  
+  if (empezo == 0)
+  {
+    alturaInicial = bmp.readAltitude(101800);
+  }
+  empezo = 1;
+  Serial.print("alturaInicial: ");
+  Serial.println(alturaInicial);
   dt = millis()-tiempo_prev;
   tiempo_prev=millis();
   t = t + dt;
@@ -426,42 +442,50 @@ void loop() {
   // Para una medida mas precisa de la altitud se considero
   // la presion a nivel del mar actual que es de 1018
   float altura = bmp.readAltitude(101800);
+  Serial.print("AlturaActual: ");
+  Serial.println(altura);
+  float difAltura = altura-alturaInicial;
+  Serial.print("difAltura: ");
+  Serial.println(difAltura);
+  Serial.print("alturaInicial: ");
+  Serial.println(alturaInicial);
   presion = bmp.readPressure();
 //  Serial.print("Alttitud = ");
 //  Serial.print(altura);
 //  Serial.println(" m");
 //    
   //Serial.println();
-  delay(500);
-
   //Servo
 
-  
-  if (altura <= 12){
-    Serial.print("Altura ");
-    Serial.println(altura);
-  }  
-    
-  if (altura == 12){
-    digitalWrite (ledServo, HIGH);  // turn on the LED
-    Serial.println("Motor activo");
-    for (pos = 0; pos <= 180; pos += 1) {
-    ServoGlobo.write(pos);
-    delay(10);
+  if (finalizoMision==0)
+    {
+    if (altura-alturaInicial <= 20){
+      Serial.print("Altura ");
+      Serial.println(altura);
+    }  
+      
+    if (altura-alturaInicial > 20){
+      Serial.println("Se superó la altura de 20 metros. Comenzando liberación. ");
+      digitalWrite (ledServo, HIGH);  // turn on the LED
+      Serial.println("Motor activo");
+      float tiem;
+      for (tiem = 0; tiem<10; tiem+=1);
+      {
+        for (pos = 0; pos <= 720; pos += 1) 
+        {
+          ServoGlobo.write(pos);
+          delay(10);
+        }
+      }
+      digitalWrite (ledServo, LOW); // turn off the LED
+      finalizoMision = 1;
     }
-    digitalWrite (ledServo, LOW); // turn off the LED
-    }
-    
+  }
   carga = analogRead(Bateria);
   carga = (carga/4095)*3.3; 
   carga = carga* (5 + 9.6)/5;  // R2 = 5K, R1 = 9.6K
   //Serial.println(carga);
   
-  WriteFile("/test8.txt", latitud, longitud, fecha_y_hora, x_value, y_value, z_value,azimuth, a_x, a_y, a_z, g_x, g_y, g_z, presion, altura, temperatura, carga, dt, t);
+  WriteFile("/test14.txt", latitud, longitud, fecha_y_hora, x_value, y_value, z_value,azimuth, a_x, a_y, a_z, g_x, g_y, g_z, presion, altura, difAltura, temperatura, carga, dt, t);
 //  ReadFile("/test1.txt");
-
-  if (altura == 0){
-    myFile.close(); // close the file
-    
-  }
 }
