@@ -450,7 +450,7 @@ void loop() {
   carga = carga* (5 + 9.6)/5;  // R2 = 5K, R1 = 9.6K
   //Serial.println(carga);
   
-  WriteFile("/test8.txt", latitude, longitude, rumbo, velocidad, altitudGPS, fecha_y_hora, x_value, y_value, z_value,azimuth, a_x, a_y, a_z, g_x, g_y, g_z, presion, altura, temperatura, carga, dt, t);
+  WriteFile("/test8.txt", latitude, longitude, rumbo, fecha_y_hora, x_value, y_value, z_value,azimuth, a_x, a_y, a_z, g_x, g_y, g_z, presion, altura, temperatura, carga, dt, t);
 //  ReadFile("/test1.txt");
 
   if (altitud == 0){
