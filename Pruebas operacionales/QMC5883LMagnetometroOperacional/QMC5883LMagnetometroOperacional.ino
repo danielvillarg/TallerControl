@@ -35,7 +35,7 @@ void setup()
    //compass.setMode(qmc5883l_mode_cont, qmc5883l_odr_200hz, qmc5883l_rng_8g, qmc5883l_osr_512);
    //compass.setSmoothing(byte steps, bool adv);
    //compass.setCalibration(int x_min, int x_max, int y_min, int y_max, int z_min, int z_max);
-   compass.setCalibration(-45, 1657, -1040, 716, 317, 2010);
+   compass.setCalibration(-862, 946, -960, 818, -708, 1161);
    //compass.setReset();
 }
 

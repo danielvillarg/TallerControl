@@ -70,7 +70,7 @@ void WriteFile(const char * path, String latitud, String longitud, String fecha_
     myFile = SD.open(path, FILE_WRITE);
   // escribir titulos de las columnas si se esta creando un archivo nuevo:
     if (myFile) {
-      myFile.println("Latitud (°), Longitud (°), fecha_y_hora, X (G), Y (G), Z (G), Angulo (°), AccelX (m/s^2), AccelY (m/s^2), AccelZ (m/s^2), GyroX (°/s), GyroY (°/s), GyroZ (°/s), Presion (Pa), Altura (m), Diferencia de Altura (m), Temperatura (°C), Carga (V), Dt (ms), Tiempo (ms)"); // write number to file      myFile.print("\n");
+      myFile.println("Latitud (°), Longitud (°), fecha_y_hora, X (µT), Y (µT), Z (µT), Angulo (°), AccelX (m/s^2), AccelY (m/s^2), AccelZ (m/s^2), GyroX (°/s), GyroY (°/s), GyroZ (°/s), Presion (Pa), Altura (m), Diferencia de Altura (m), Temperatura (°C), Carga (V), Dt (ms), Tiempo (ms)"); // write number to file      myFile.print("\n");
       myFile.close();
     }
     else {
@@ -88,11 +88,11 @@ void WriteFile(const char * path, String latitud, String longitud, String fecha_
     myFile.print(",");
     myFile.print(String(fecha_y_hora));
     myFile.print(",");
-    myFile.print(String(x_value));
+    myFile.print(String(x_value/100));
     myFile.print(",");
-    myFile.print(String(y_value));
+    myFile.print(String(y_value/100));
     myFile.print(",");
-    myFile.print(String(z_value));
+    myFile.print(String(z_value/100));
     myFile.print(",");
     myFile.print(String(azimuth));
     myFile.print(",");
