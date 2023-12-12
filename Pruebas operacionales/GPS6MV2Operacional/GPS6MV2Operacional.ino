@@ -40,24 +40,20 @@ void loop()
  
     if(gps.encode(c))  
     {
-      if (gps.location.isUpdated()) {
+      //if (gps.location.isUpdated()) {
         Serial.print("Latitud/Longitud: ");
         Serial.print(gps.location.lat(), 6);
         Serial.print(", ");
         Serial.println(gps.location.lng(), 6);
-      }
-      if (gps.altitude.isUpdated()) {
+      //}
+      //if (gps.altitude.isUpdated()) {
         Serial.print("Altitud (metros): ");
         Serial.println(gps.altitude.meters());
-      }
-      if (gps.course.isUpdated()) {
-        Serial.print("Rumbo (grados): ");
-        Serial.println(gps.course.deg());
-      }
-      if (gps.speed.isUpdated()) {
+      //}
+      //if (gps.speed.isUpdated()) {
         Serial.print("Velocidad (kmph): ");
         Serial.println(gps.speed.kmph());
-      }
+      //}
     // Raw date in DDMMYY format (u32)
       int year, month, day, hour, minute, second;
 
@@ -88,6 +84,43 @@ void loop()
       // Second (0-59) (u8)
       Serial.print("Second = "); 
       Serial.println(gps.time.second()); 
+      // Year (2000+) (u16)
+      //Serial.print("Year = "); 
+      float anio = gps.date.year(); 
+      // Month (1-12) (u8)
+      //Serial.print("Month = "); 
+      float mes = gps.date.month(); 
+      // Day (1-31) (u8)
+      //Serial.print("Day = "); 
+      float dia = gps.date.day(); 
+
+      // Raw time in HHMMSSCC format (u32)
+      /*Serial.print("Raw time in HHMMSSCC = "); 
+      Serial.println(gps.time.value()); 
+*/
+      // Hour (0-23) (u8)
+      //Serial.print("Hour = "); 
+      //Serial.println(gps.time.hour()-5); 
+      float hora = gps.time.hour()-5;
+      // Minute (0-59) (u8)
+      //Serial.print("Minute = "); 
+      //Serial.println(gps.time.minute()); 
+      float minuto = gps.time.minute();
+      // Second (0-59) (u8)
+      //Serial.print("Second = "); 
+      //Serial.println(gps.time.second()); 
+      float segundo = gps.time.second();
+      String str_anio = String(anio, 0); // 0 indica que no queremos decimales
+      String str_mes = String(mes, 0);
+      String str_dia = String(dia, 0);
+      String str_hora = String(hora, 0);
+      String str_minuto = String(minuto, 0);
+      String str_segundo = String(segundo, 0);
+
+      // Formar la cadena final concatenando los valores con "/"
+      String fecha_y_hora = str_dia + "/" + str_mes + "/" + str_anio + "-" + str_hora + ":" + str_minuto + ":" + str_segundo;
+      Serial.println(fecha_y_hora);
+      delay(1000);
     }
   }
 }
