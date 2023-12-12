@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------------------------//
-// Robert's Smorgasbord 2022                                                                     //
+// Referencias:                                                                                  //
 // https://robertssmorgasbord.net                                                                //
 // https://www.youtube.com/channel/UCGtReyiNPrY4RhyjClLifBA                                      //
 // QST QMC5883L 3-Axis Digital Compass and Arduino MCU – The Basics https://youtu.be/xh_KCkds038 //

@@ -1,8 +1,5 @@
 /*
-  GY-271 Compass
-  modified on 02 Sep 2020
-  by Mohammad Reza Akbari @ Electropeak
-  Home
+//Referencias: código de GY-271 Compass Mohammad Reza Akbari @ Electropeak
 */
 
 // I2C Library
