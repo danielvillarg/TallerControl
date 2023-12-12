@@ -68,7 +68,7 @@ void WriteFile(const char * path, float latitude, float longitude, float angulo,
     myFile = SD.open(path, FILE_WRITE);
   // escribir titulos de las columnas si se esta creando un archivo nuevo:
     if (myFile) {
-      myFile.println("Latitud, Longitud, Angulo, Velocidad, altitudGPS, fecha_y_hora, X, Y, Z, Azimuth, AccelX, AccelY, AccelZ, GyroX, GyroY, GyroZ, Presion, Altura, Temperatura, Carga, Dt, Tiempo"); // write number to file
+      myFile.println("Latitud, Longitud, Angulo (°), Velocidad, altitudGPS, fecha_y_hora, X, Y, Z, Azimuth (°), AccelX (rad/s), AccelY (rad/s), AccelZ (rad/s), GyroX, GyroY, GyroZ, Presion (mmHg), Altura (m), Temperatura (°C), Carga (V), Dt (ms), Tiempo (ms)"); // write number to file
       myFile.print("\n");
       myFile.close();
     }
