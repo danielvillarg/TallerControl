@@ -261,8 +261,30 @@ void setupSensores(){
   //Servo
   ServoGlobo.attach(ServoPin);
   Serial.println("Servo ready");
-
+  
+  int c = neogps.read();
+  float latitud2 = gps.location.lat();
+  Serial.println(latitud2);
+  while (latitud2==0)
+  {
+    Serial.println("Esperando...");
+    if(neogps.available())
+    {
+      int c = neogps.read();
+      if(gps.encode(c))  
+      {
+        latitud2 = gps.location.lat();
+        Serial.println(latitud2);
+      }
+      Serial.println("GPS disponible, calculando coordenadas...");
+    }
+    delay(500);
+  }
+  
+  
+  Serial.println("Inicio");
   digitalWrite(ledListo, HIGH);
+
 }
 
 void setup() {
@@ -270,6 +292,9 @@ void setup() {
   delay(2000);
   pinMode(ledServo, OUTPUT);
   pinMode(ledListo, OUTPUT);
+  digitalWrite(ledListo, LOW);
+
+  
   while (!Serial) { ; }  // wait for serial port to connect. Needed for native USB port only
   Serial.println("Initializing SD card...");
   if (!SD.begin(CS)) {
@@ -278,7 +303,6 @@ void setup() {
   }
   Serial.println("SD initialization done.");
   setupSensores();
-
 }
 
 void loop() {
