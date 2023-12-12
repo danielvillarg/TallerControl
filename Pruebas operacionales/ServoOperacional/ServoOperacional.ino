@@ -24,13 +24,13 @@ float tiem;
 void loop() {
   
   delay(1000);
-  if (altura < 12){
+  if (altura < 6){
     Serial.print("Altura ");
     Serial.println(altura);
     altura = altura + 1;
   }  
     
-  if (altura == 12){
+  if (altura == 6){
     altura = altura + 1;
     Serial.println("Motor activo");
     digitalWrite (ledServo, HIGH);  // prender servo y led

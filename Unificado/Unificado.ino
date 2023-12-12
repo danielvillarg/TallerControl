@@ -486,6 +486,10 @@ void loop() {
   carga = carga* (5 + 9.6)/5;  // R2 = 5K, R1 = 9.6K
   //Serial.println(carga);
   
-  WriteFile("/test14.txt", latitud, longitud, fecha_y_hora, x_value, y_value, z_value,azimuth, a_x, a_y, a_z, g_x, g_y, g_z, presion, altura, difAltura, temperatura, carga, dt, t);
+  WriteFile("/testDefinitivo.txt", latitud, longitud, fecha_y_hora, x_value, y_value, z_value,azimuth, a_x, a_y, a_z, g_x, g_y, g_z, presion, altura, difAltura, temperatura, carga, dt, t);
 //  ReadFile("/test1.txt");
+  if (altura==0)
+  {
+    myFile.close();
+  }
 }
