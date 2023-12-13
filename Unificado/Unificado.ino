@@ -70,7 +70,7 @@ void WriteFile(const char * path, String latitud, String longitud, String fecha_
     myFile = SD.open(path, FILE_WRITE);
   // escribir titulos de las columnas si se esta creando un archivo nuevo:
     if (myFile) {
-      myFile.println("Latitud (°), Longitud (°), fecha_y_hora, X (µT), Y (µT), Z (µT), Angulo (°), AccelX (m/s^2), AccelY (m/s^2), AccelZ (m/s^2), GyroX (°/s), GyroY (°/s), GyroZ (°/s), Presion (Pa), Altura (m), Diferencia de Altura (m), Temperatura (°C), Carga (V), Dt (ms), Tiempo (ms)"); // write number to file      myFile.print("\n");
+      myFile.println("Latitud (°), Longitud (°), fecha_y_hora, X (µT), Y (µT), Z (µT), Angulo (°), AccelX (m/s^2), AccelY (m/s^2), AccelZ (m/s^2), GyroX (°/s), GyroY (°/s), GyroZ (°/s), Presion (Pa), Altura (m), Diferencia de Altura (m), Temperatura (°C), Carga (V), Dt (ms), Tiempo (ms)"); // write number to file myFile.print("\n");
       myFile.close();
     }
     else {
@@ -281,11 +281,11 @@ void setupSensores(){
       {
         latitud2 = gps.location.lat();
         Serial.println(latitud2);
-        delay(1000);
+        delay(100);
       }
       Serial.println("GPS disponible, calculando coordenadas...");
     }
-    delay(1000);
+    delay(2000);
   }
   
   
@@ -486,7 +486,7 @@ void loop() {
   carga = carga* (5 + 9.6)/5;  // R2 = 5K, R1 = 9.6K
   //Serial.println(carga);
   
-  WriteFile("/testDefinitivo.txt", latitud, longitud, fecha_y_hora, x_value, y_value, z_value,azimuth, a_x, a_y, a_z, g_x, g_y, g_z, presion, altura, difAltura, temperatura, carga, dt, t);
+  WriteFile("/testDefinitivo7.txt", latitud, longitud, fecha_y_hora, x_value, y_value, z_value,azimuth, a_x, a_y, a_z, g_x, g_y, g_z, presion, altura, difAltura, temperatura, carga, dt, t);
 //  ReadFile("/test1.txt");
   if (altura==0)
   {

@@ -36,7 +36,7 @@ void loop() {
     digitalWrite (ledServo, HIGH);  // prender servo y led
     for (tiem = 0; tiem<10; tiem+=1);
       {
-        for (pos = 0; pos <= 720; pos += 1) {
+        for (pos = 0; pos <= 1250; pos += 1) {
           ServoGlobo.write(pos);
           delay(10);
         }
