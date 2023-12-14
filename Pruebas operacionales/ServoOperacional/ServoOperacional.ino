@@ -17,8 +17,9 @@ void setup() {
   ServoGlobo.setPeriodHertz(50); 
   ServoGlobo.attach(ServoPin);
   Serial.begin(9600);
-  Serial.println("Servo Listo");
+  Serial.println("Cero");
   digitalWrite(ledListo, HIGH); 
+  ServoGlobo.write(0);
 }
 float tiem;
 void loop() {
@@ -33,14 +34,21 @@ void loop() {
   if (altura == 6){
     altura = altura + 1;
     Serial.println("Motor activo");
+    /*
     digitalWrite (ledServo, HIGH);  // prender servo y led
     for (tiem = 0; tiem<10; tiem+=1);
       {
-        for (pos = 0; pos <= 1250; pos += 1) {
+        for (pos = 0; pos <= 180; pos += 1) {
           ServoGlobo.write(pos);
           delay(10);
         }
       }
+    delay(3000);
+    */
+    Serial.println("180");
+    ServoGlobo.write(180);
+    delay(2000);
+    ServoGlobo.write(0);
     digitalWrite (ledServo, LOW);  
   }
 }
